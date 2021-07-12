@@ -22,7 +22,7 @@ from datetime import datetime,timedelta
 # ecc = 0.00020
 
 perigeeTime = 0
-sma = 6500000
+sma = 6000000
 ecc = 0
 
 x = np.zeros([3600*8])
@@ -39,6 +39,14 @@ for t in range(0,3600*8):
 t = np.arange(0, 3600*8, 1)
 fig, ax = plt.subplots()
 ax.plot(x, y)
+fig1, ax1 = plt.subplots()
+ax1.plot(t, x)
+fig2, ax2 = plt.subplots()
+ax2.plot(t, y)
 ax.grid()
-#plt.axis('equal')
+ax1.grid()
+ax2.grid()
+plt.xlim(-6.5E6, 6.5E6)
+plt.ylim(-6.5E6, 6.5E6)
+fig.gca().set_aspect('equal', adjustable='box')
 plt.show()
