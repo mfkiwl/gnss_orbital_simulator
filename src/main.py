@@ -5,10 +5,15 @@ import matplotlib.pyplot as plt
 import scipy
 import numpy as np
 
-#import classDefinitions.py
+import classDefinitions
 import orbitalMechanicsRoutines
+import timeRoutines
 import math
 from datetime import datetime,timedelta
+
+
+out2 = timeRoutines.timedate2epoch(year=2021,month=3,day=29)
+
 
 # gravParamEarth = 3.986004418E14
 # n = 15.48787420 * (2*math.pi/86400)
