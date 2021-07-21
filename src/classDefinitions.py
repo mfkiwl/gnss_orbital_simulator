@@ -1,31 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-classdefinitions.py
+classDefinitions.py
 
 This file stores the classes used by the program.
 """
 
 from dataclasses import dataclass
-from orbitalMechanicsRoutines import computeTrueAnomaly
 
 @dataclass
 class satellite:
-    name: str
-    satID: int
+    name: str = None
+    satID: int = None
+    #planet: str = None         #For possible later use?
+    #gravParam: float = None    #For possible later use?
     ecc: float = None
     inc: float = None
     raan: float = None
     sma: float = None
-    argper: float = None
+    argPer: float = None
     anomTrue: float = None
     epoch: float = None
     meanMotion: float = None
-    anomMean: float = None
+    anomMeanEpoch: float = None
     period: float = None
+    orbitRadius: float = None
+    perigeeTime: float = None
     
     
-    
-    
-    
-        
