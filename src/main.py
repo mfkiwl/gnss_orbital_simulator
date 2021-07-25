@@ -8,11 +8,14 @@ import numpy as np
 import classDefinitions
 import orbitalMechanicsRoutines
 import timeRoutines
+import simulatorRoutines
 import math
 from datetime import datetime,timedelta
 
 #Define GNSS Sampling frequency
 sampFreq = 5 #In Hertz
+timeStep = 0.2
+simTime = 3600
 
 
 # gravParamEarth = 3.986004418E14
@@ -38,42 +41,13 @@ y = np.zeros([3600*8*sampFreq])
 z = np.zeros([3600*8*sampFreq])
 t = np.zeros([3600*8*sampFreq])
 
-for niter in range(0,3600*8*sampFreq):
-    time = niter/sampFreq
-    trueAnom = orbitalMechanicsRoutines.computeTrueAnomaly(perigeeTime,time,sma,ecc)
-    r = orbitalMechanicsRoutines.computeRadius(sma,ecc,trueAnom)
-    
-    x_IRF = r*math.cos(trueAnom)
-    y_IRF = r*math.sin(trueAnom)
-    z_IRF = 0
-    
-    r_orbital = np.transpose(np.matrix([x_IRF,y_IRF,z_IRF]))
-    
-    
-    #Define the rotation matrices from the orbital reference frame to the ECEF frame
-    rotX = np.array([[1,0,0],
-                     [0,math.cos(-i),math.sin(-i)],
-                     [0,-math.sin(-i),math.cos(-i)]])
+#Create satellite list
+inputs= {'name':"ISS", 'epochY':2021, 'epoch':202.66605324, 'inc':math.radians(51.6429) , 'raan':math.radians(172.2233) , 'ecc':0.0001549 , 'argPer':math.radians(182.0461) , 'anomMeanEpoch':math.radians(157.9175) , 'meanMotion':15.48829759293939*(2*math.pi/86400)}
+satList = []
+satList = simulatorRoutines.addSatellite(satList,"TLE",**inputs)
 
-    rotZ = np.array([[math.cos(-Omega),math.sin(-Omega),0],
-                     [-math.sin(-Omega),math.cos(-Omega),0],
-                     [0,0,1]])
-    
-    rotZ2 = np.array([[math.cos(-w0),math.sin(-w0),0],
-                      [-math.sin(-w0),math.cos(-w0),0],
-                      [0,0,1]])
-    
-    #Use rotation matrices to obtain the satellite position in an ECEF frame 
-    r_ECEF = np.matmul(rotZ,np.matmul(rotX,np.matmul(rotZ2,r_orbital)))
-    
-    x[niter] = r_ECEF[0]
-    y[niter] = r_ECEF[1]
-    z[niter] = r_ECEF[2]
-    t[niter] = time
-    
-    if time == 10:
-        print("HERE!")
-
+#Call the main simulation routine
+[r,t] = simulatorRoutines.simulationMain(satList,timeStep,simTime)
 
 t = np.arange(0, 3600*8*sampFreq, 1)
 

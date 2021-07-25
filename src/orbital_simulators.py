@@ -9,6 +9,6 @@ keplerian approach, i.e. the orbit is static and the satellite position is a
 function of time only.
 """
 
-def simulation_keplerian(satellites):
-    for i in satellites:
+def simulation_keplerian(satelliteList):
+    for i in satelliteList:
         
