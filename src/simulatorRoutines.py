@@ -15,8 +15,12 @@ def addSatellite(satList, parameterType, **kwargs):
     
     #For TLEs
     if parameterType == "TLE":
+        
+        #Add type of input parameter data to the satellite object
+        satelliteNew.simtype = parameterType
+        
         #All parameters except epoch
-        for key in ('name', 'inc', 'raan', 'ecc', 'argPer', 'anomMeanEpoch', 'meanMotion'):
+        for key in ('name', 'satID', 'inc', 'raan', 'ecc', 'argPer', 'anomMeanEpoch', 'meanMotion'):
             if key in kwargs:
                 setattr(satelliteNew, key, kwargs[key])
         
