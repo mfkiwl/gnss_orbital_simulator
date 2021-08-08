@@ -9,15 +9,18 @@ from classDefinitions import satellite
 from timeRoutines import timedate2epoch
 from orbitalMechanicsRoutines import computeSMA, computeTrueAnomaly, computeRadius, computePerigeeTime, computeOrbitalPeriod
 
-def addSatellite(satList, parameterType, **kwargs):
+def addSatellite(satList, dataSource, simulationType, **kwargs):
     #Create new satellite object
     satelliteNew = satellite()
     
     #For TLEs
-    if parameterType == "TLE":
+    if dataSource == "TLE":
         
         #Add type of input parameter data to the satellite object
-        satelliteNew.simtype = parameterType
+        satelliteNew.dataSource = dataSource
+        
+        #Add type of simulation to use with this satellite object
+        satelliteNew.simType = simulationType
         
         #All parameters except epoch
         for key in ('name', 'satID', 'inc', 'raan', 'ecc', 'argPer', 'anomMeanEpoch', 'meanMotion'):
@@ -84,7 +87,7 @@ def simulationKepler(satellite,time):
     #Unwrap the satellite object fields and name them according to orbital parameter nomenclature
     i = satellite.inc
     Omega = satellite.raan
-    w0 = satellite.argper
+    w0 = satellite.argPer
     
     #Compute the true anomaly of the satellite (i.e. the "true angle")
     trueAnom = computeTrueAnomaly(satellite.perigeeTime,time,satellite.sma,satellite.ecc)
@@ -117,7 +120,10 @@ def simulationKepler(satellite,time):
                       [0,0,1]])
     
     #Use rotation matrices to obtain the satellite position in an ECEF frame 
-    r_ECI = np.matmul(rotZ,np.matmul(rotX,np.matmul(rotZ2,r_ORF)))
+    r_ECI = np.array(np.matmul(rotZ,np.matmul(rotX,np.matmul(rotZ2,r_ORF))))
+    
+    #Convert to line vector
+    r_ECI = r_ECI.transpose()
     
     return r_ECI
 
@@ -133,10 +139,10 @@ def simulationMain(satelliteList,timeStep,simTime):
     #Create a position vector for each satellite
     r=[]
     for n in range(0,len(satelliteList)):
-        r[n] = np.zeros(simTime * int((1/timeStep)),3)
+        r.append(np.zeros((simTime * int((1/timeStep)),3)))
     
     #Create a simulation time vector
-    t = np.zeros(simTime*(1/timeStep))
+    t = np.zeros(simTime*int(1/timeStep))
     
     
 #     x = np.zeros([3600*8*sampFreq])
@@ -146,17 +152,20 @@ def simulationMain(satelliteList,timeStep,simTime):
 
     #Run the simulation
     
-    for nIter in range(0,timeStep,simTime*(1/timeStep)):
+    for nIter in range(0,int(simTime*(1/timeStep))):
         
         #Compute the clock time of the simulation step
         time = nIter * timeStep
         t[nIter] = time
         
+        #print(f"Simulation step: Time={time:.1f} (iteration #{nIter:d} of {int(simTime/timeStep):d})\n")
+        
         #Choose simulator based on satellite class simType field
         n=0
         for sat in satelliteList:
             if sat.simType == "kepler":
-                r[n,nIter] = simulationKepler(sat,time)
+                #print("Simulating satellite ",sat.name,"\n")
+                r[n][nIter] = simulationKepler(sat,time)
                 n +=1
             #elif: #Other simulation types
             else:

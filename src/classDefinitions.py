@@ -12,6 +12,7 @@ from dataclasses import dataclass
 class satellite:
     name: str = None
     satID: int = None
+    dataSource: str = None      #Data source for orbital parameters: TLE, YUMA, etc
     simType: str = None         #Simulation type. Currently only Keplerian
     #planet: str = None         #For possible later use?
     #gravParam: float = None    #For possible later use?

@@ -129,7 +129,7 @@ def computeSatellitePositionECEF(satelliteObject):
                       [0,0,1]])
     
     #Use rotation matrices to obtain the satellite position in an ECEF frame 
-    r_ECEF = rotZ.dot(rotX.dot(rotZ2.dot(r_orbital)))
+    r_ECEF = np.array(np.matmul(rotZ,np.matmul(rotX,np.matmul(rotZ2,r_orbital))))
     
     return r_ECEF
     

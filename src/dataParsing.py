@@ -8,6 +8,7 @@ Functions used to parse TLE, YUMA and other kinds of data
 def parseTLE(tleInput):
     
     import re
+    from math import radians,pi
     
     #Go through all the TLE lines and create an array of TLE data
     tleArray = []
@@ -74,27 +75,27 @@ def parseTLE(tleInput):
                 #Map the matches to variables
                 
                 #Line number and satellite check
-                if tleLine.group(1) != "2" or tleLine.group(2) != noradID:
+                if tleLine.group(1) != "2" or int(tleLine.group(2)) != noradID:
                     print("Mismatched TLE line entries\n")
                     break
                 
-                #Inclination (degrees)
-                inclination = float(tleLine.group(3))
+                #Inclination (degrees->radians)
+                inclination = radians(float(tleLine.group(3)))
                 
-                #Right Ascension of the Ascending Node
-                RAAN = float(tleLine.group(4))
+                #Right Ascension of the Ascending Node (degrees->radians)
+                RAAN = radians(float(tleLine.group(4)))
                 
                 #Eccentricity
                 ecc = float("0."+tleLine.group(5))
                 
-                #Argument of perigee(degrees)
-                argPerigee = float(tleLine.group(6))
+                #Argument of perigee(degrees->radians)
+                argPerigee = radians(float(tleLine.group(6)))
                 
-                #Mean Anomaly (degrees)
-                meanAnomally = float(tleLine.group(7))
+                #Mean Anomaly (degrees->radians)
+                meanAnomally = radians(float(tleLine.group(7)))
                 
-                #Mean Motion (revolutions per day)
-                meanMotion = float(tleLine.group(8))
+                #Mean Motion (revolutions per day->rad/s)
+                meanMotion = (2*pi/(24*3600))*float(tleLine.group(8))
                 
                 #Revolution number at epoch (revolutions)
                 revolutionNumber = int(tleLine.group(9))
@@ -110,6 +111,6 @@ def parseTLE(tleInput):
     return tleArray
                 
             
-        
+#def parseYUMA()
         
         
