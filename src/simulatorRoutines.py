@@ -58,24 +58,18 @@ def addSatellite(satList, dataSource, simulationType, **kwargs):
     return satList
     
 
-# from math import radians,degrees,pi
-# satList = []
-# parameterType = "TLE"
-# inputs= {'name':"ISS", 'epochY':2021, 'epoch':202.66605324, 'inc':radians(51.6429) , 'raan':radians(172.2233) , 'ecc':0.0001549 , 'argPer':radians(182.0461) , 'anomMeanEpoch':radians(157.9175) , 'meanMotion':15.48829759293939*(2*pi/86400)}
-# addSatellite(satList, parameterType, **inputs)
 
-# print("ISS TLE Data:\n")
-# print("Eccentricity = ",satList[0].ecc,"\n")
-# print("Inclination = ",degrees(satList[0].inc),"\n")
-# print("RAAN = ",degrees(satList[0].raan),"\n")
-# print("SMA = ",satList[0].sma,"\n")
-# print("ArgPer = ",degrees(satList[0].argPer),"\n")
-# print("Mean Motion (rad/s) = ",satList[0].meanMotion,"\n")
-# print("Mean Motion (rev/day) = ",satList[0].meanMotion/(2*pi/86400),"\n")
-# print("Mean Anomaly at Epoch = ",degrees(satList[0].anomMeanEpoch),"\n")
-# print("Orbital Period (s) = ",satList[0].period,"\n")
-# print("Orbital Period (min) = ",satList[0].period/60,"\n")
-
+def addStaticReceiver(coordinatesWGS84):
+    #This function converts the receiver position in WGS84 to the ECI frame used in the satellite simulation
+    
+    #Unwrap the coordinates and assign them to dedicated variables for easier reading
+    lat = coordinatesWGS84[1]
+    lon = coordinatesWGS84[2]
+    height = coordinatesWGS84[3]    #This is the altitude above the WGS84 elipsoid, not above MSL
+    
+    
+    #Convert these coordinates to ECI
+    
 
 
 def simulationKepler(satellite,time):
