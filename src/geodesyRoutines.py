@@ -8,12 +8,12 @@ https://github.com/JGManito/gnss_positioning_routines but are repeated here to
 avoid dependencies for such simple functions
 """
 
-def llh2ecef(llh: numpy.array):
+import numpy as np
+
+def llh2ecef(llh: np.array):
     #LLH2ECEF Converts geodetic coordinates (in degrees) to cartesian coordinates, using WGS-84 as
     #the reference ellipsoid. The input must be a numpy array with each coordinate set taking
     #a single line of the array in the order [latitude, longitude, height]
-    
-    import numpy as np
     
     #Define the WGS-84 ellipsoid constants
     a = 6378137
@@ -44,7 +44,7 @@ def llh2ecef(llh: numpy.array):
     return xyz
 
 
-def ecef2eci(ecef: numpy.array):
+#def ecef2eci(ecef: numpy.array):
     #ECEF2ECI Converts geocentric coordinates (ECEF frame) to inertial coordinates (ECI frame), using WGS-84 as
     #the reference ellipsoid. The input must be a numpy array with each coordinate set taking
     #a single line of the array in the order [latitude, longitude, height]

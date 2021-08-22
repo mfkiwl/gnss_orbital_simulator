@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-%matplotlib tk
+#%matplotlib tk
 import matplotlib.pyplot as plt
 import scipy
 import numpy as np
@@ -16,7 +16,7 @@ from datetime import datetime,timedelta
 #Define GNSS Sampling frequency
 sampFreq = 5 #In Hertz
 timeStep = 0.2
-simTime = 24*3600 #in seconds
+simTime = 2*3600 #in seconds
 
 
 # gravParamEarth = 3.986004418E14
@@ -68,13 +68,17 @@ i = math.radians(55)
 Omega = math.radians(35)
 w0 = math.radians(60)
 
+
+#Create the receiver list
+receiver = 0 #FIXME! 
+
 # x = np.zeros([simTime/timeStep])
 # y = np.zeros([simTime/timeStep])
 # z = np.zeros([simTime/timeStep])
 # t = np.zeros([simTime/timeStep])
 
 #Call the main simulation routine
-[r,t] = simulatorRoutines.simulationMain(satList,timeStep,simTime)
+[r,t,LOS] = simulatorRoutines.simulationMain(satList,receiver,timeStep,simTime)
 
 t = np.arange(0, int(simTime/timeStep), 1)
 
@@ -97,6 +101,12 @@ for i in range(0,len(satList)):
     #plt.zlim(-6.5E7, 6.5E7)
     #fig.gca().set_aspect('equal', adjustable='box')
     
+plt.show()
+
+fig1 = plt.figure()
+ax1 = plt.axes()
+for i in range(0,len(satList)):
+    ax1.plot(t,LOS[i][:])
 plt.show()
 
 # fig1, ax1 = plt.subplots()

@@ -68,7 +68,20 @@ def addStaticReceiver(coordinatesWGS84):
     height = coordinatesWGS84[3]    #This is the altitude above the WGS84 elipsoid, not above MSL
     
     
-    #Convert these coordinates to ECI
+
+def simulationReceiver(receiverType, time, receiverData):
+    #This function simulates changes of the receiver position at the epoch defined by "time". Currently the
+    #available methods are (defined by receiverType):
+    #    "static" - Defines a static receiver on the Earth's surface, and receiverData is an array of ECEF coordinates;
+    #    "satellite" - Defines a receiver on board a satellite. Receiver data is an object of type "satellite"
+
+    if receiverType == "static":
+        return receiverData
+    
+    elif receiverType == "satellite":
+        if receiverData.simType == "kepler":
+            return simulationKepler(receiverData,time)
+        
     
 
 
@@ -114,55 +127,65 @@ def simulationKepler(satellite,time):
                       [0,0,1]])
     
     #Use rotation matrices to obtain the satellite position in an ECEF frame 
-    r_ECI = np.array(np.matmul(rotZ,np.matmul(rotX,np.matmul(rotZ2,r_ORF))))
+    r_ECEF = np.array(np.matmul(rotZ,np.matmul(rotX,np.matmul(rotZ2,r_ORF))))
     
     #Convert to line vector
-    r_ECI = r_ECI.transpose()
+    r_ECEF = r_ECEF.transpose()
     
-    return r_ECI
+    return r_ECEF
 
         
     return
 
 
 
-def simulationMain(satelliteList,timeStep,simTime):
+def simulationMain(satelliteList,receiver,timeStep,simTime):
     
     import numpy as np
+    from geodesyRoutines import llh2ecef
+    from gnssSimulationRoutines import computeLOS
+    
+    #%DEBUG% Define the receiver position 
+    recPos = llh2ecef(np.array([[38.736946, -9.142685, 0]]))
     
     #Create a position vector for each satellite
-    r=[]
+    rSat_ECEF=[]
+    rRec_ECEF=[]
+    LOS = []
     for n in range(0,len(satelliteList)):
-        r.append(np.zeros((simTime * int((1/timeStep)),3)))
+        rSat_ECEF.append(np.zeros((simTime * int((1/timeStep)),3))) #FIXME: Switch to one-liner?
+        LOS.append(np.zeros((simTime * int((1/timeStep)),1))) #FIXME: Switch to one-liner?
+    rRec_ECEF=np.zeros((simTime * int((1/timeStep)),3)) #FIXME: Switch to one-liner?
+        
     
     #Create a simulation time vector
     t = np.zeros(simTime*int(1/timeStep))
-    
-    
-#     x = np.zeros([3600*8*sampFreq])
-# y = np.zeros([3600*8*sampFreq])
-# z = np.zeros([3600*8*sampFreq])
-# t = np.zeros([3600*8*sampFreq])
 
     #Run the simulation
-    
     for nIter in range(0,int(simTime*(1/timeStep))):
         
         #Compute the clock time of the simulation step
         time = nIter * timeStep
         t[nIter] = time
         
-        #print(f"Simulation step: Time={time:.1f} (iteration #{nIter:d} of {int(simTime/timeStep):d})\n")
+        #Get the receiver position of the simulation step
+        rRec_ECEF[nIter] = simulationReceiver("static", time, recPos)
+        
+        print(f"Simulation step: Time={time:.1f} (iteration #{nIter:d} of {int(simTime/timeStep):d})\n")
         
         #Choose simulator based on satellite class simType field
         n=0
         for sat in satelliteList:
             if sat.simType == "kepler":
                 #print("Simulating satellite ",sat.name,"\n")
-                r[n][nIter] = simulationKepler(sat,time)
+                rSat_ECEF[n][nIter] = simulationKepler(sat,time)
+                
+                LOS[n][nIter] = computeLOS(rSat_ECEF[n][nIter], rRec_ECEF[nIter])
+                
+                
                 n +=1
             #elif: #Other simulation types
             else:
                 print("Simulation Type not defined")
                 
-    return [r,t]
+    return [rSat_ECEF,t,LOS]

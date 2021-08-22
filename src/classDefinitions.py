@@ -28,5 +28,3 @@ class satellite:
     period: float = None
     orbitRadius: float = None
     perigeeTime: float = None
-    
-    
