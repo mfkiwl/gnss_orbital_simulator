@@ -139,14 +139,15 @@ def simulationKepler(satellite,time):
 
 
 
-def simulationMain(satelliteList,receiver,timeStep,simTime):
+def simulationMain(satelliteList,receiver,timeStep,simTime,maskAngle):
     
     import numpy as np
     from geodesyRoutines import llh2ecef
-    from gnssSimulationRoutines import computeLOS
+    from gnssSimulationRoutines import computeLOS,elevationMask
     
     #%DEBUG% Define the receiver position 
     recPos = llh2ecef(np.array([[38.736946, -9.142685, 0]]))
+    recPosLLH = np.array([[38.736946, -9.142685, 0]]) #FIXME
     
     #Create a position vector for each satellite
     rSat_ECEF=[]
@@ -188,4 +189,25 @@ def simulationMain(satelliteList,receiver,timeStep,simTime):
             else:
                 print("Simulation Type not defined")
                 
-    return [rSat_ECEF,t,LOS]
+                
+        #Create an array with the positions of all satellites for a given simulation step
+        rSatArray_ECEF = np.zeros((n,3))
+        
+        for i in range(n):
+            rSatArray_ECEF[i,:] = rSat_ECEF[i][nIter]
+                
+        #Apply the elevation mask to the satellites
+        #satMask = elevationMask(rSatArray_ECEF,rRec_ECEF[nIter],maskAngle) #FIXME
+        satMask = elevationMask(rSatArray_ECEF,recPosLLH,maskAngle)
+        
+        #Mask the satellites which are hidden by the mask
+        for i in range(n):
+            if satMask[i] != 0:
+                rSatArray_ECEF[i] = np.array([[np.nan,np.nan,np.nan]])
+                
+        #Update the satellite position array for the entire simulation
+        for i in range(n):
+            rSat_ECEF[i][nIter] = rSatArray_ECEF[i]
+        
+                
+    return [rSat_ECEF,t,LOS,satMask]

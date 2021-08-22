@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#%matplotlib tk
+%matplotlib tk
 import matplotlib.pyplot as plt
 import scipy
 import numpy as np
@@ -17,6 +17,9 @@ from datetime import datetime,timedelta
 sampFreq = 5 #In Hertz
 timeStep = 0.2
 simTime = 2*3600 #in seconds
+
+#Define the mask angle
+maskAngle = math.radians(5)
 
 
 # gravParamEarth = 3.986004418E14
@@ -78,7 +81,7 @@ receiver = 0 #FIXME!
 # t = np.zeros([simTime/timeStep])
 
 #Call the main simulation routine
-[r,t,LOS] = simulatorRoutines.simulationMain(satList,receiver,timeStep,simTime)
+[r,t,LOS,satMask] = simulatorRoutines.simulationMain(satList,receiver,timeStep,simTime,maskAngle)
 
 t = np.arange(0, int(simTime/timeStep), 1)
 
