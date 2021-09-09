@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-%matplotlib tk
+#%matplotlib tk
 import matplotlib.pyplot as plt
 import scipy
 import numpy as np
@@ -15,8 +15,8 @@ from datetime import datetime,timedelta
 
 #Define GNSS Sampling frequency
 sampFreq = 5 #In Hertz
-timeStep = 0.2
-simTime = 2*3600 #in seconds
+timeStep = 1
+simTime = 24*3600 #in seconds
 
 #Define the mask angle
 maskAngle = math.radians(5)
@@ -81,13 +81,24 @@ receiver = 0 #FIXME!
 # t = np.zeros([simTime/timeStep])
 
 #Call the main simulation routine
-[r,t,LOS,satMask] = simulatorRoutines.simulationMain(satList,receiver,timeStep,simTime,maskAngle)
+[r,rMasked,t,LOS,satMask] = simulatorRoutines.simulationMain(satList,receiver,timeStep,simTime,maskAngle)
 
 t = np.arange(0, int(simTime/timeStep), 1)
 
 fig = plt.figure()
 ax = plt.axes(projection='3d')
-for i in range(0,len(satList)):
+
+#Draw the earth
+u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
+x = 6371000*np.cos(u)*np.sin(v)
+y = 6371000*np.sin(u)*np.sin(v)
+z = 6371000*np.cos(v)
+
+ax.plot_surface(x, y, z, linewidth=0.0, color="w", edgecolor="r")
+
+#Draw orbits
+#for i in range(0,len(satList)):
+for i in range(0,2):
     ax.plot3D(r[i][:,0], r[i][:,1], r[i][:,2])
     #fig1, ax1 = plt.subplots()
     #ax1.plot(t, x)

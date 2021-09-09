@@ -151,10 +151,12 @@ def simulationMain(satelliteList,receiver,timeStep,simTime,maskAngle):
     
     #Create a position vector for each satellite
     rSat_ECEF=[]
+    rSatMasked_ECEF=[]
     rRec_ECEF=[]
     LOS = []
     for n in range(0,len(satelliteList)):
         rSat_ECEF.append(np.zeros((simTime * int((1/timeStep)),3))) #FIXME: Switch to one-liner?
+        rSatMasked_ECEF.append(np.zeros((simTime * int((1/timeStep)),3))) #FIXME: Switch to one-liner?
         LOS.append(np.zeros((simTime * int((1/timeStep)),1))) #FIXME: Switch to one-liner?
     rRec_ECEF=np.zeros((simTime * int((1/timeStep)),3)) #FIXME: Switch to one-liner?
         
@@ -190,24 +192,31 @@ def simulationMain(satelliteList,receiver,timeStep,simTime,maskAngle):
                 print("Simulation Type not defined")
                 
                 
-        #Create an array with the positions of all satellites for a given simulation step
-        rSatArray_ECEF = np.zeros((n,3))
+        #Create secondary arrays with the positions of all satellites and LOS for a given simulation step
+        rSat_ECEF_temp = np.zeros((n,3))
+        LOS_Temp = np.ones((n,1))
         
         for i in range(n):
-            rSatArray_ECEF[i,:] = rSat_ECEF[i][nIter]
+            rSat_ECEF_temp[i,:] = rSat_ECEF[i][nIter]
                 
         #Apply the elevation mask to the satellites
         #satMask = elevationMask(rSatArray_ECEF,rRec_ECEF[nIter],maskAngle) #FIXME
-        satMask = elevationMask(rSatArray_ECEF,recPosLLH,maskAngle)
+        satMask = elevationMask(rSat_ECEF_temp,recPosLLH,maskAngle)
         
-        #Mask the satellites which are hidden by the mask
+        #Mask the satellites which are hidden by the mask in the secondary array
         for i in range(n):
-            if satMask[i] != 0:
-                rSatArray_ECEF[i] = np.array([[np.nan,np.nan,np.nan]])
+            if satMask[i] != 1:
+                rSat_ECEF_temp[i] = np.array([[np.nan,np.nan,np.nan]])
+                LOS_Temp[i] = np.array([[np.nan]])
                 
-        #Update the satellite position array for the entire simulation
+        #Update the satellite position and LOS arrays for the entire simulation
         for i in range(n):
-            rSat_ECEF[i][nIter] = rSatArray_ECEF[i]
+            rSatMasked_ECEF[i][nIter] = rSat_ECEF_temp[i]
+            LOS[i][nIter] = LOS_Temp[i] * LOS[i][nIter]
+            
+        
+        #Update satellite object orbital parameters
+        
         
                 
-    return [rSat_ECEF,t,LOS,satMask]
+    return [rSat_ECEF,rSatMasked_ECEF,t,LOS,satMask]
