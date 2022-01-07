@@ -112,5 +112,97 @@ def parseTLE(tleInput):
                 
             
 #def parseYUMA()
+
+def parse_receiver_data(receiver_file_id):
+# This function parses the receiver data file and outputs the different parameters
+# required for the simulation.
+#
+# Input:  TextIOWrapper
+# Output: return_code (int)
+#         receiver_name (str)
+#         receiver_type (str)
+#         receiver_observables (list of str)
+#         receiver_clock_parameters (TBD, placeholder)
+#         receiver_noise (float)
+#         if receiver_type == static: #Single position
+#             receiver_position (numpy array 1x3)
+#         if receiver_type == moving: #Time series with PVA
+#             receiver_position (numpy array nx10)
+#         if receiver_type == satellite: #TLE
+#             receiver_position (list of str)
+
+    import numpy as np
+    
+    i = 0 #line counter
+    for line in receiver_file_id:
+        line = line.split("=")      #Split the line
+        line[0] = line[0].rstrip()  #Remove trailing whitespace on the field description
         
+        if line[0] == "Receiver Name":
+            receiver_name = line[1]
+            i += 1
+            continue
+        
+        if line[0] == "Receiver Type":
+            receiver_type = line[1]
+            i += 1
+            continue
+        
+        if line[0] == "Receiver Observables":
+            receiver_observables = line[1].split(",")
+            i += 1
+            continue
+        
+        if line[0] == "Receiver Clock Parameters":
+            #To implement, placeholder
+            receiver_clock_parameters = 0
+            i += 1
+            continue
+        
+        if line[0] == "Receiver Noise":
+            receiver_noise = float(line[1])
+            i += 1
+            continue
+        
+        if line[0] == "Receiver Position":
+            if receiver_type == "static":
+                xyz = line[1].split(",")                                                            #Split the CSV field
+                receiver_position = np.array([float(xyz[0]),float(xyz[1]),float(xyz[2])])           #Convert to float and store as numpy array
+                receiver_position = receiver_position[np.newaxis,:]                                 #Convert array to row vector
+            
+            if receiver_type == "moving":
+                #Not yet implemented, placeholder
+                break
+            
+            if receiver_type == "satellite":
+                #Not yet implemented, placeholder
+                break
+            
+            i += 1
+            continue
+        
+    
+            
+            
+            
+    #Input file sanity check
+    try: receiver_name
+    except NameError: return_code = -1
+    
+    try: receiver_type
+    except NameError: return_code = -1
+    
+    try: receiver_observables
+    except NameError: return_code = -1
+    
+    #Receiver clock parameters isn't required, skip
+    
+    try: receiver_noise
+    except NameError: return_code = -1
+    
+    try: receiver_position
+    except NameError: return_code = -1
+    
+    
+    return(return_code, receiver_name, receiver_type, receiver_observables, receiver_clock_parameters, receiver_noise, receiver_position)
         
